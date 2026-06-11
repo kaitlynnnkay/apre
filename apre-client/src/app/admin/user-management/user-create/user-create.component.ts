@@ -41,7 +41,8 @@ import { environment } from '../../../../environments/environment';
         </div>
 
         <div class="form__actions">
-          <input type="submit" class="button button--primary" value="Submit">
+          <!-- Changed the "value" of the submit button from "Submit" to "Create User" for clarity in the CTA -->
+          <input type="submit" class="button button--primary" value="Create User">
         </div>
       </form>
       <br />
