@@ -78,4 +78,69 @@ router.get('/regions/:region', (req, res, next) => {
   }
 });
 
+// Start of sales by product report additions
+
+/**
+ * @description
+ *
+ * GET /product
+ *
+ * Fetches a list of distinct sales by product.
+ *
+ * Example:
+ * fetch('/product')
+ *  .then(response => response.json())
+ *  .then(data => console.log(data));
+ */
+router.get('/product', (req, res, next) => {
+  try {
+    mongo (async db => {
+      const product = await db.collection('sales').distinct('product');
+      res.send(product);
+    }, next);
+  } catch (err) {
+    console.error('Error getting product: ', err);
+    next(err);
+  }
+});
+
+/**
+ * @description
+ *
+ * GET /product/:product
+ *
+ * Fetches sales data for each product.
+ *
+ * Example:
+ * fetch('/product/Smart Door Lock')
+ *  .then(response => response.json())
+ *  .then(data => console.log(data));
+ */
+router.get('/product/:product', (req, res, next) => {
+  try {
+    mongo (async db => {
+      const salesReportByProduct = await db.collection('sales').aggregate([
+        { $match: { product: req.params.product } },
+        {
+          $group: {
+            _id: '$product',
+            totalSales: { $sum: '$amount'},
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            product: '$_id',
+            totalSales: 1
+          }
+        }
+      ]).toArray();
+      res.send(salesReportByProduct);
+    }, next);
+  } catch (err) {
+    console.error('Error getting sales data for product: ', err);
+    next(err);
+  }
+});
+
 module.exports = router;
